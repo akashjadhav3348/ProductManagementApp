@@ -1,0 +1,94 @@
+<!-- 🔥 Category Filter -->
+<div class="mb-3 col-lg-3 my-2 category-filter">
+  <label for="categoryFilter" class="form-label">Filter by Category:</label>
+  <select id="categoryFilter" class="form-select" [(ngModel)]="selectedCategory" (change)="filterProducts()">
+    <option value="">All Categories</option>
+    <option *ngFor="let category of uniqueCategories" [value]="category.categoryId">
+      {{ category.name }}
+    </option>
+  </select>
+</div>
+
+<!-- 🏆 Product List Container -->
+<div class="container mt-4">
+  <h1 class="text-center fw-bold">Product List</h1>
+
+  <!-- 🚀 Loading & No Products Message -->
+  <div *ngIf="isLoading" class="alert alert-info text-center">Loading products...</div>
+  <div *ngIf="!isLoading && filteredProducts.length === 0" class="alert alert-warning text-center">
+    No products found.
+  </div>
+
+  <!-- 📌 Responsive Product Grid -->
+  <div class="row">
+    <div *ngFor="let product of filteredProducts" class="col-lg-3 col-md-3 col-sm-12 mb-4">
+      <div class="card custom-card">
+        <img [src]="product.imageUrl" height="00" class="card-img-top rounded p-2" [alt]="product.Name"
+          (error)="replaceWithFallback($event)">
+        <div class="card-body">
+          <h4 class="card-title fw-bold text-center">{{ product.Name }}</h4>
+          <label for="" class="form-label">Discription</label>
+          <textarea name="" id="" cols="50" rows="5" class="form-control mb-4" value="{{product.Description}}"
+            readonly></textarea>
+          <div class="d-flex justify-content-between ">
+            <p class="text-success"><strong>Price:</strong> {{ product.Price | currency: 'INR' }}</p>
+            <p class="text-danger"><strong>Stock:</strong> ({{product.Stock}})</p>
+          </div>
+        </div>
+        <hr>
+        <div class="form-group gap-3 d-flex justify-content-center my-2">
+          <button class="btn btn-warning px-2" >Add Cart</button>
+          <button class="btn btn-success px-4">Buy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✏️ Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form (ngSubmit)="updateProduct()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedProduct.Name" name="name" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedProduct.Price" name="price" required>
+          </div>
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" [(ngModel)]="selectedProduct.Description" name="description"
+              rows="3"></textarea>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Stock</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedProduct.Stock" name="stock" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" [(ngModel)]="selectedProduct.CategoryId" name="categoryId" required>
+              <option *ngFor="let category of uniqueCategories" [value]="category.categoryId">{{ category.name }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Image</label>
+            <input type="file" class="form-control" (change)="onFileSelected($event)">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Update Product</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

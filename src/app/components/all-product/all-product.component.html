@@ -1,0 +1,115 @@
+<!-- 🔥 Category Filter -->
+<div class="mb-3 col-lg-3 my-2 category-filter">
+  <label for="categoryFilter" class="form-label">Filter by Category:</label>
+  <select id="categoryFilter" class="form-select" [(ngModel)]="selectedCategory" (change)="filterProducts()">
+    <option value="">All Categories</option>
+    <option *ngFor="let category of uniqueCategories" [value]="category.categoryId">
+      {{ category.name }}
+    </option>
+  </select>
+</div>
+
+<div class="card shadow border-0">
+  <div class="card-header">
+    <h4 class="text-center fw-bold">Product List</h4>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover table-nowrap table-bordered">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Image</th>
+          <th scope="col">Name</th>
+          <th class="w-50">Description</th>
+          <th scope="col">Price</th>
+          <th scope="col">Stock</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let product of filteredProducts | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }; let i = index ;">
+          <td>{{ ((currentPage - 1) * itemsPerPage) + i + 1 }}.({{ product.ProductId }})</td>
+          <td>
+            <img [src]="product.imageUrl" height="100" class="rounded" [alt]="product.Name"
+              (error)="replaceWithFallback($event)">
+          </td>
+          <td>{{ product.Name }}</td>
+          <td>
+            <textarea class="form-control" cols="80" rows="3" [value]="product.Description" readonly></textarea>
+          </td>
+          <td class="text-success">{{ product.Price | currency: 'INR' }}</td>
+          <td class="text-danger">{{ product.Stock }}</td>
+          <td class="d-flex justify-content-center align-items-center">
+            <button class="btn btn-success btn-sm me-2" (click)="openEditModal(product)"><i
+                class="bi bi-pencil"></i></button>
+            <button class="btn btn-danger btn-sm" (click)="deleteProduct(product)"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+    <div *ngIf="isLoading" class="alert alert-info text-center">Loading products...</div>
+    <div *ngIf="!isLoading && filteredProducts.length === 0" class="alert alert-warning text-center">
+      No products found.
+    </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="d-flex justify-content-between align-items-center px-4 my-5">
+    <span class="text-muted text-sm">
+      Showing {{ startItemNumber }} to {{ endItemNumber }} of {{ totalItems }} results
+    </span>
+    <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+  </div>
+
+  <!-- ✏️ Edit Product Modal -->
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form (ngSubmit)="updateProduct()">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedProduct.Name" name="name" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Price</label>
+              <input type="number" class="form-control" [(ngModel)]="selectedProduct.Price" name="price" required>
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" [(ngModel)]="selectedProduct.Description" name="description"
+                rows="3"></textarea>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Stock</label>
+              <input type="number" class="form-control" [(ngModel)]="selectedProduct.Stock" name="stock" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Category</label>
+              <select class="form-select" [(ngModel)]="selectedProduct.CategoryId" name="categoryId" required>
+                <option>Select Category</option>
+                <option *ngFor="let category of uniqueCategories" [value]="category.categoryId">{{ category.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Image</label>
+              <input type="file" class="form-control" (change)="onFileSelected($event)">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Update Product</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
