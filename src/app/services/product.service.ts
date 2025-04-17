@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
 
+export interface ProductApiResponse {
+  totalCount: number;
+  productsDto: Product[]; // 👈 must match backend response key
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -11,12 +16,14 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getAllProducts() {
-    return this.http.get(`${this.apiUrl}/all`);
+  // ✅ Updated to match new API response shape
+  getAllProducts(): Observable<ProductApiResponse> {
+    return this.http.get<ProductApiResponse>(`${this.apiUrl}/all`);
   }
+
   getProductById(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/products/${id}`);
-  }  
+    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  }
 
   getProductsByCategory(categoryId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/category/${categoryId}`);
@@ -25,15 +32,12 @@ export class ProductService {
   addProduct(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}`, formData);
   }
+
   updateProduct(id: number, formData: FormData): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, formData);
-    
   }
-  
 
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
-    
   }
-  
 }

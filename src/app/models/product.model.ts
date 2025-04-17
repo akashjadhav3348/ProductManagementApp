@@ -1,6 +1,8 @@
 
 
 export interface Product {
+  price: number;
+  imageBase64: any;
   CategoryId: null;
   ProductId: number;
   Name: string;
@@ -14,4 +16,8 @@ export interface Product {
   imageUrl?: string;
   ImageBase64: string;
   IsActive: boolean;
+}
+interface ProductResponse {
+  totalCount: number;
+  productsDto: Product[];
 }

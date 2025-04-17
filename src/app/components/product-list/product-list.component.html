@@ -23,8 +23,7 @@
   <div class="row">
     <div *ngFor="let product of filteredProducts" class="col-lg-3 col-md-3 col-sm-12 mb-4">
       <div class="card custom-card">
-        <img [src]="product.imageUrl" height="00" class="card-img-top rounded p-2" [alt]="product.Name"
-          (error)="replaceWithFallback($event)">
+        <img [src]="product.imageUrl" height="00" class="card-img-top rounded p-2" [alt]="product.Name">
         <div class="card-body">
           <h4 class="card-title fw-bold text-center">{{ product.Name }}</h4>
           <label for="" class="form-label">Discription</label>

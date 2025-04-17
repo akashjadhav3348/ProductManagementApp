@@ -23,55 +23,55 @@ export class ProductListComponent implements OnInit {
     this.loadProducts();
     this.loadCategories();
     console.log(this.filteredProducts);
-    
+
   }
 
 
   // ✅ Load Categories (Fixed Mapping)
-// ✅ Load Only Active Categories
-loadCategories(): void {
-  this.categoryService.getActiveCategories().subscribe({
-    next: (data) => {
-      console.log('✅ API Response:', data); // Debugging
+  // ✅ Load Only Active Categories
+  loadCategories(): void {
+    this.categoryService.getActiveCategories().subscribe({
+      next: (data) => {
+        console.log('✅ API Response:', data); // Debugging
 
-      if (Array.isArray(data)) {
-        this.uniqueCategories = data
-          .filter(category => category.IsActive) // ✅ FIXED: Use `IsActive` (uppercase I)
-          .map(category => ({
-            categoryId: category.CategoryId, // ✅ Correct case
-            name: category.Name              // ✅ Correct case
-          }));
+        if (Array.isArray(data)) {
+          this.uniqueCategories = data
+            .filter(category => category.IsActive) // ✅ FIXED: Use `IsActive` (uppercase I)
+            .map(category => ({
+              categoryId: category.CategoryId, // ✅ Correct case
+              name: category.Name              // ✅ Correct case
+            }));
 
-        console.log('✅ Parsed Categories:', this.uniqueCategories); // Debugging
-      } else {
-        console.error('❌ Unexpected API response format:', data);
+          console.log('✅ Parsed Categories:', this.uniqueCategories); // Debugging
+        } else {
+          console.error('❌ Unexpected API response format:', data);
+          this.uniqueCategories = [];
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error fetching active categories:', error);
         this.uniqueCategories = [];
       }
-    },
-    error: (error) => {
-      console.error('❌ Error fetching active categories:', error);
-      this.uniqueCategories = [];
-    }
-  });
-}
+    });
+  }
 
   loadProducts(): void {
     this.isLoading = true;
     this.productService.getAllProducts().subscribe({
       next: (data) => {
-        if (Array.isArray(data)) {
-          this.products = data.map(product => ({
+        if (data && Array.isArray(data.productsDto)) {
+          this.products = data.productsDto.map(product => ({
             ...product,
-            categoryId: product.CategoryId ?? null, // ✅ Ensure categoryId is mapped properly
-            Category: product.Category ?? 'Unknown', // ✅ Set default category name if null
+            categoryId: product.CategoryId ?? null,
+            Category: product.Category ?? 'Unknown',
             price: product.Price ?? 0,
-            imageUrl: product.ImageBase64
+            imageUrl: product.ImageBase64  // 🟢 FIXED CASE HERE
               ? `data:image/jpeg;base64,${product.ImageBase64}`
               : 'assets/no-image.png'
           }));
+          
           this.filteredProducts = [...this.products];
           console.log(this.filteredProducts);
-          
         } else {
           console.error('Unexpected API response format:', data);
         }
@@ -82,9 +82,8 @@ loadCategories(): void {
         this.isLoading = false;
       }
     });
+
   }
-
-
 
 
   // ✅ Filter Products
@@ -124,10 +123,10 @@ loadCategories(): void {
     const modalElement = new (window as any).bootstrap.Modal(document.getElementById('editProductModal'));
     modalElement.show();
   }
-  
+
   // ♻️ Update Product
   updateProduct(): void {
-    
+
     const formData = new FormData();
     formData.append('ProductId', this.selectedProduct.ProductId.toString());
     formData.append('Name', this.selectedProduct.Name);
@@ -137,14 +136,14 @@ loadCategories(): void {
     formData.append('CategoryId', this.selectedProduct.CategoryId.toString());
     if (this.selectedImageFile) {
       formData.append('ImageFile', this.selectedImageFile);
-    }   
-    
-  
+    }
+
+
     this.productService.updateProduct(this.selectedProduct.ProductId, formData).subscribe({
       next: () => {
         this.loadProducts();
         Swal.fire('Updated!', 'Product updated successfully!', 'success');
-  
+
         const modalElement = document.getElementById('editProductModal');
         if (modalElement) (window as any).bootstrap.Modal.getInstance(modalElement)?.hide();
       },
@@ -159,14 +158,14 @@ loadCategories(): void {
 
 
 
-onFileSelected(event: any): void {
-  this.selectedImageFile = event.target.files[0];
-}
+  onFileSelected(event: any): void {
+    this.selectedImageFile = event.target.files[0];
+  }
 
-  
+
   // ✅ Delete Product with Confirmation
   deleteProduct(id: any): void {
-    
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'This will permanently delete the product!',

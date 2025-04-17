@@ -66,17 +66,21 @@ export class AllProductComponent {
     this.isLoading = true;
     this.productService.getAllProducts().subscribe({
       next: (data) => {
-        if (Array.isArray(data)) {
-          this.products = data.map(product => ({
+        if (data && Array.isArray(data.productsDto)) {
+          this.products = data.productsDto.map(product => ({
             ...product,
             categoryId: product.CategoryId ?? null,
             Category: product.Category ?? 'Unknown',
             price: product.Price ?? 0,
-            imageUrl: product.ImageBase64
+            imageUrl: product.ImageBase64  // 🟢 FIXED CASE HERE
               ? `data:image/jpeg;base64,${product.ImageBase64}`
               : 'assets/no-image.png'
           }));
+          
           this.filteredProducts = [...this.products];
+          console.log(this.filteredProducts);
+        } else {
+          console.error('Unexpected API response format:', data);
         }
         this.isLoading = false;
       },
@@ -85,6 +89,7 @@ export class AllProductComponent {
         this.isLoading = false;
       }
     });
+
   }
 
   filterProducts(): void {
